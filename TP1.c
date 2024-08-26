@@ -45,17 +45,16 @@ void adicionar_arquivo(Directory *dir, File *file) {
 }
 
 void listar_conteudo(Directory *dir) {
-    printf("Conteúdo do diretório '%s':\n", dir->nome);
 
     File *file = dir->files;
     while (file != NULL) {
-        printf("  Arquivo: %s\n", file->nome);
+        printf("%s\n", file->nome);
         file = file->next;
     }
 
     Directory *subdir = dir->subdirs;
     while (subdir != NULL) {
-        printf("  Diretório: %s\n", subdir->nome);
+        printf("%s\n", subdir->nome);
         subdir = subdir->next;
     }
 }
@@ -95,13 +94,13 @@ void excluir_diretorio(Directory *parent, const char *nome) {
             liberar_diretorios(dir->subdirs);
             liberar_arquivos(dir->files);
             free(dir);
-            printf("Diretório '%s' excluído com sucesso.\n", nome);
+            printf("Diretorio '%s' excluido com sucesso.\n", nome);
             return;
         }
         prev = dir;
         dir = dir->next;
     }
-    printf("Diretório '%s' não encontrado.\n", nome);
+    printf("Diretorio '%s' nao encontrado.\n", nome);
 }
 
 void excluir_arquivo(Directory *dir, const char *nome) {
@@ -115,13 +114,13 @@ void excluir_arquivo(Directory *dir, const char *nome) {
                 prev->next = file->next;
             }
             free(file);
-            printf("Arquivo '%s' excluído com sucesso.\n", nome);
+            printf("Arquivo '%s' excluido com sucesso.\n", nome);
             return;
         }
         prev = file;
         file = file->next;
     }
-    printf("Arquivo '%s' não encontrado.\n", nome);
+    printf("Arquivo '%s' nao encontrado.\n", nome);
 }
 
 void liberar_arquivos(File *file) {
@@ -151,20 +150,22 @@ void executar_comando(char *comando, Directory **current_dir) {
     } else if (strcmp(token, "cd") == 0) {
         token = strtok(NULL, " ");
         if (token == NULL) {
-            printf("Uso: cd <diretório>\n");
+            printf("Uso: cd <diretorio>\n");
             return;
         }
         Directory *dir = encontrar_diretorio(*current_dir, token);
         if (dir != NULL) {
             *current_dir = dir;
         } else {
-            printf("Diretório '%s' não encontrado.\n", token);
+            printf("Diretorio '%s' nao encontrado.\n", token);
         }
     } else if (strcmp(token, "cd..") == 0) {
         if ((*current_dir)->parent != NULL) {
             *current_dir = (*current_dir)->parent;
+
+            //Implementar pilha com diretorio
         } else {
-            printf("Você já está no diretório raiz.\n");
+            printf("Você ja esta no diretorio raiz.\n");
         }
     } else if (strcmp(token, "mkdir") == 0) {
         token = strtok(NULL, " ");
@@ -173,11 +174,11 @@ void executar_comando(char *comando, Directory **current_dir) {
             return;
         }
         if (encontrar_diretorio(*current_dir, token) != NULL) {
-            printf("Diretório '%s' já existe.\n", token);
+            printf("Diretorio '%s' ja existe.\n", token);
         } else {
             Directory *new_dir = criar_diretorio(token, *current_dir);
             adicionar_subdiretorio(*current_dir, new_dir);
-            printf("Diretório '%s' criado com sucesso.\n", token);
+            printf("Diretorio '%s' criado com sucesso.\n", token);
         }
     } else if (strcmp(token, "touch") == 0) {
         token = strtok(NULL, " ");
@@ -186,7 +187,7 @@ void executar_comando(char *comando, Directory **current_dir) {
             return;
         }
         if (encontrar_arquivo(*current_dir, token) != NULL) {
-            printf("Arquivo '%s' já existe.\n", token);
+            printf("Arquivo '%s' ja existe.\n", token);
         } else {
             File *new_file = criar_arquivo(token);
             adicionar_arquivo(*current_dir, new_file);
@@ -215,7 +216,7 @@ void executar_comando(char *comando, Directory **current_dir) {
 }
 
 int main() {
-    Directory *root = criar_diretorio("root", NULL);
+    Directory *root = criar_diretorio("", NULL);
     Directory *home = criar_diretorio("home", root);
     Directory *docs = criar_diretorio("docs", home);
     Directory *music = criar_diretorio("music", home);
@@ -233,7 +234,7 @@ int main() {
     char comando[512];
 
     while (1) {
-        printf("%s$ ", current_dir->nome);
+        printf("-%s-> ", current_dir->nome);
         if (fgets(comando, sizeof(comando), stdin) == NULL) {
             printf("Erro ao ler o comando.\n");
             continue;
